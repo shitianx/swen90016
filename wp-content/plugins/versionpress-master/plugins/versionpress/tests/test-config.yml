@@ -1,0 +1,66 @@
+# Test configuration used by WpAutomation, parsed into `TestConfig`.
+#
+# ! Keep this in sync with docker-compose.yml
+
+# Worker type to run the tests, 'selenium' or 'wp-cli'
+end2end-test-type: wp-cli
+
+# WP-CLI version used, e.g., '1.1.0' or 'latest-stable'
+wp-cli-version: latest-stable
+
+# Selenium configuration
+selenium:
+
+  # Where Selenium runs (port is expected to be 4444)
+  host: selenium-hub
+
+  # How long to wait after commit is made
+  post-commit-wait-time: 500
+
+# Default values for all sites, may be overridden by a specific site
+common-site-config:
+  db:
+    table-prefix: wp_
+  wp-site:
+    admin-user: admin
+    admin-email: admin@example.com
+    admin-pass: adminpwd
+    wp-version: 4.9
+    wp-locale: en_US
+    wp-autoupdate: false
+
+# One of the sites below, used as the active one
+test-site: wptest
+
+# Test sites
+sites:
+
+  # Host names and paths must match those in docker-compose.yml
+  wptest:
+    host: wordpress-for-tests
+    installation-type: standard
+    db:
+      host: mysql-for-tests
+      dbname: wordpress
+      user: root
+      password: r00tpwd
+    wp-site:
+      # Path must always be a subfolder of /var/www/html for cloning & merging tests to work
+      path: /var/www/html/wptest
+      url: http://wordpress-for-tests/wptest
+      wp-admin-path: wp-admin
+      title: "VersionPress Test"
+
+  wptest-composer:
+    host: wordpress-for-tests
+    installation-type: composer
+    db:
+      host: mysql-for-tests
+      dbname: wordpress
+      user: root
+      password: r00tpwd
+    wp-site:
+      path: /var/www/html/wptest
+      url: http://wordpress-for-tests/wptest/web # The site runs from subdirectory
+      wp-admin-path: wp/wp-admin
+      title: "VersionPress Test (Composer)"

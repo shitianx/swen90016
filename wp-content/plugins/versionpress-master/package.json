@@ -1,0 +1,51 @@
+{
+  "name": "versionpress-dev-workspace",
+  "version": "1.0.0",
+  "description": "VersionPress development workspace",
+  "author": "VersionPress",
+  "license": "GPL",
+  "scripts": {
+    "init-dev": "node -r ./scripts/node_modules/ts-node/register scripts/init-dev.ts",
+    "refresh-dev": "git clean -fxd && npm i",
+    "init-phpstorm": "node -r ./scripts/node_modules/ts-node/register scripts/init-phpstorm.ts",
+    "build": "node -r ./scripts/node_modules/ts-node/register scripts/build.ts",
+    "changelog": "node -r ./scripts/node_modules/ts-node/register scripts/changelog.ts",
+    "start": "docker-compose up -d wordpress",
+    "stop": "docker-compose stop",
+    "stop-and-cleanup": "docker-compose down -v && rm -rf dev-env/wp",
+    "tests:unit": "node -r ./scripts/node_modules/ts-node/register scripts/run-tests.ts --testsuite Unit",
+    "tests": "node -r ./scripts/node_modules/ts-node/register scripts/run-tests.ts",
+    "tests:cleanup": "docker-compose -f docker-compose-tests.yml down && rm -rf dev-env/wp-for-tests dev-env/test-logs",
+    "tests:copy-files-to-host": "rm -rf dev-env/wp-for-tests dev-env/test-logs && docker-compose -f docker-compose-tests.yml run --rm copy-files-to-host",
+    "build-images": "npm-run-all -s _build-image-*",
+    "_build-image-wp": "docker build --pull -t versionpress/wordpress:php7.2-apache dev-env/wordpress-image",
+    "_build-image-cli": "docker build --pull -t versionpress/wordpress:cli dev-env/wordpress-cli-image",
+    "push-images": "npm-run-all -s _push-image-*",
+    "_push-image-wp": "docker push versionpress/wordpress:php7.2-apache",
+    "_push-image-cli": "docker push versionpress/wordpress:cli",
+    "get-image-digests": "node -r ./scripts/node_modules/ts-node/register scripts/get-dockerhub-digests.ts versionpress/wordpress",
+    "postinstall": "(cd scripts && npm install) && npm run init-dev",
+    "lint:markdown": "markdownlint -i '{**/vendor/**,**/node_modules/**,ext-libs/**,dev-env/**}' .",
+    "lint:php": "./plugins/versionpress/vendor/bin/phpcs --standard=./plugins/versionpress/ruleset.xml"
+  },
+  "engines": {
+    "node": ">= 8.11",
+    "npm": ">= 6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.md": [
+      "markdownlint"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.5",
+    "markdownlint-cli": "^0.14.0",
+    "npm-run-all": "^4.1.5"
+  }
+}
